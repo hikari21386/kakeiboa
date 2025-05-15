@@ -1,0 +1,134 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>レグ家計簿</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>レグ家計簿</h1>
+    
+    <img src="assets/reg-snack.png" alt="レグ" class="reg-img" />
+    <p id="reg-comment">おやつもらってうれしいでちゅ〜</p>
+
+    <div class="input-area">
+      <select id="category">
+        <option value="ひかちゃん収入">ひかちゃん収入</option>
+        <option value="はるちゃん収入">はるちゃん収入</option>
+        <option value="レグのおやつ、等">レグのおやつ、等</option>
+        <option value="家賃・光熱費等の支出">家賃・光熱費等の支出</option>
+        <option value="はるちゃん課金笑">はるちゃん課金笑</option>
+      </select>
+      <input type="number" id="amount" placeholder="金額" />
+      <button onclick="addEntry()">追加</button>
+    </div>
+
+    <div class="chart-area">
+      <canvas id="pieChart"></canvas>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
+/* style.css */
+body {
+  background-color: #ffeef5;
+  font-family: "Rounded M+ 1c", sans-serif;
+  color: #444;
+  text-align: center;
+}
+
+h1 {
+  background-color: #ffc5d9;
+  padding: 10px;
+  border-radius: 10px;
+  color: #fff;
+}
+
+.container {
+  max-width: 500px;
+  margin: auto;
+  padding: 20px;
+}
+
+.reg-img {
+  width: 120px;
+  border-radius: 50%;
+  margin-top: 10px;
+}
+
+.input-area {
+  margin: 20px 0;
+}
+
+select, input {
+  font-size: 16px;
+  padding: 5px;
+  margin: 5px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+}
+
+button {
+  background-color: #ff9eb5;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.chart-area {
+  margin-top: 30px;
+}// script.js
+const data = {
+  labels: [],
+  datasets: [{
+    data: [],
+    backgroundColor: ['#ffb6c1', '#ffd1dc', '#d1c4e9', '#b2dfdb', '#ffcc80'],
+  }]
+};
+
+const ctx = document.getElementById('pieChart').getContext('2d');
+const pieChart = new Chart(ctx, {
+  type: 'pie',
+  data: data,
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { position: 'bottom' },
+    }
+  }
+});
+
+function addEntry() {
+  const category = document.getElementById('category').value;
+  const amount = parseInt(document.getElementById('amount').value);
+
+  const index = data.labels.indexOf(category);
+  if (index !== -1) {
+    data.datasets[0].data[index] += amount;
+  } else {
+    data.labels.push(category);
+    data.datasets[0].data.push(amount);
+  }
+
+  // レグコメント切り替え
+  const comment = document.getElementById('reg-comment');
+  if (category.includes("課金")) {
+    comment.textContent = "また課金でちゅか！？";
+  } else if (category.includes("おやつ")) {
+    comment.textContent = "おやつもらってうれしいでちゅ〜";
+  } else if (category.includes("支出")) {
+    comment.textContent = "今月けっこう使ってるでちゅ…";
+  } else {
+    comment.textContent = "いい感じでちゅ！";
+  }
+
+  pieChart.update();
+}
+
